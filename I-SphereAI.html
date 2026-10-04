@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I-Sphere AI - Luxury Neural Interface</title>
+    <!-- Google Fonts for Luxury Serif Styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0c0c0c;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #080808 100%);
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Metallic Gold Gradient Text Effect */
+        .gold-text {
+            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+        }
+
+        .sub-text {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.25em;
+            color: #d4af37;
+        }
+
+        .luxury-panel {
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .gold-border {
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+
+        .gold-border:focus {
+            border-color: #fcf6ba;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Smooth sidebar transition */
+        #sidebar {
+            transition: all 0.3s ease-in-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0c0c0c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #332912;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-100 antialiased selection:bg-[#d4af37] selection:text-black">
+
+    <!-- VIEW 1: Luxury Landing / Splash Screen -->
+    <div id="landingView" class="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 transition-opacity duration-700">
+        <main class="max-w-4xl mx-auto space-y-6">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-wider gold-text uppercase">
+                I-Sphere AI
+            </h1>
+            <p class="text-xs md:text-sm lg:text-base uppercase sub-text font-medium opacity-90">
+                The Limit of Thinking is Infinite
+            </p>
+            <div class="pt-8">
+                <button onclick="startAiInterface()" class="inline-block px-8 py-3 rounded-full border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all duration-300 font-semibold tracking-widest text-sm uppercase cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                    Initialize Experience
+                </button>
+            </div>
+        </main>
+        <footer class="absolute bottom-6 text-xs text-neutral-500 tracking-widest uppercase font-sans">
+            &copy; 2026 I-Sphere AI. All Rights Reserved.
+        </footer>
+    </div>
+
+    <!-- VIEW 2: Active Chat Interface (Hidden by default) -->
+    <div id="chatView" class="hidden flex-1 flex flex-col h-screen overflow-hidden opacity-0 transition-opacity duration-700">
+        
+        <!-- Top Header Navigation -->
+        <header class="luxury-panel border-b border-[#d4af37]/30 px-6 py-4 flex flex-wrap items-center justify-between gap-4 z-50">
+            <div class="flex items-center space-x-3">
+                <!-- Sidebar Toggle Button -->
+                <button onclick="toggleSidebar()" class="p-2 rounded-xl border border-[#d4af37]/40 bg-black/40 text-[#fcf6ba] hover:bg-[#d4af37]/20 transition-all cursor-pointer" title="Toggle Sidebar">
+                    ☰
+                </button>
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#bf953f] to-[#aa771c] flex items-center justify-center shadow-md">
+                    <span class="font-bold text-black text-lg">Ω</span>
+                </div>
+                <div>
+                    <h1 class="font-bold tracking-wider text-lg gold-text uppercase">I-SPHERE AI</h1>
+                    <p class="text-[10px] sub-text tracking-widest">Neural Core v3.1</p>
+                </div>
+            </div>
+
+            <!-- Model Selector, Voice Control & API Key Manager Bar -->
+            <div class="flex flex-wrap items-center gap-2 bg-[#121212] px-3 py-1.5 rounded-lg border gold-border">
+                <!-- Voice Control Button with Live Indicator -->
+                <button id="voiceToggleBtn" onclick="toggleVoiceAssistant()" class="bg-black text-xs text-gray-300 font-serif px-3 py-1.5 rounded border gold-border hover:bg-[#d4af37]/20 transition-all flex items-center space-x-2 cursor-pointer" title="Toggle Voice Assistant Questions">
+                    <span id="voiceDot" class="w-2.5 h-2.5 rounded-full bg-gray-500"></span>
+                    <span id="voiceText">Voice: Off</span>
+                </button>
+
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <select id="modelSelect" class="bg-black text-xs text-[#fcf6ba] font-mono px-2 py-1 rounded border gold-border focus:outline-none">
+                        <option value="openai/gpt-oss-20b" selected>openai/gpt-oss-20b</option>
+                        <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
+                        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+                    </select>
+                </div>
+
+                <!-- Saved API Keys Selector & Management -->
+                <div class="flex items-center space-x-1">
+                    <select id="apiKeySelect" onchange="handleApiKeyChange(this.value)" class="bg-black text-xs text-[#fcf6ba] font-mono px-2 py-1.5 rounded border gold-border focus:outline-none max-w-[170px] truncate cursor-pointer" title="Select or add API keys">
+                        <!-- Populated dynamically -->
+                    </select>
+                    <button onclick="deleteCurrentApiKey()" class="text-gray-400 hover:text-red-400 p-1 rounded transition-colors text-xs cursor-pointer" title="Delete Selected API Key">🗑️</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Layout -->
+        <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 md:p-6 gap-6 overflow-hidden">
+            
+            <!-- Sidebar with Archives & Controls -->
+            <aside id="sidebar" class="w-full md:w-80 luxury-panel rounded-2xl p-4 flex flex-col justify-between font-sans flex-shrink-0">
+                <div class="space-y-4 flex-1 overflow-hidden flex flex-col">
+                    
+                    <!-- New Chat Button -->
+                    <button onclick="createNewChatSession('New Session')" class="w-full py-2.5 bg-gradient-to-r from-[#bf953f]/20 to-[#aa771c]/20 hover:from-[#bf953f]/40 hover:to-[#aa771c]/40 text-[#fcf6ba] text-xs font-serif font-bold rounded-xl border border-[#d4af37]/40 transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md flex-shrink-0">
+                        <span>+ New Neural Session</span>
+                    </button>
+
+                    <!-- Recent Chats / Archives List -->
+                    <div class="flex-1 flex flex-col min-h-0">
+                        <h3 class="text-xs uppercase tracking-wider text-[#d4af37] mb-2 font-semibold font-serif flex-shrink-0">Neural Archives</h3>
+                        <div id="chatHistoryList" class="space-y-1.5 overflow-y-auto flex-1 pr-1">
+                            <!-- Dynamically populated saved chats -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Prompts Section -->
+                    <div class="flex-shrink-0 pt-2 border-t border-[#d4af37]/20">
+                        <h3 class="text-xs uppercase tracking-wider text-[#d4af37] mb-2 font-semibold font-serif">Quick Prompts</h3>
+                        <div class="flex flex-col gap-1.5">
+                            <button onclick="sendQuickPrompt('Who made you?')" class="text-left text-xs bg-black/50 hover:bg-[#d4af37]/10 text-gray-300 p-2 rounded-lg border border-[#d4af37]/20 transition-all flex items-center justify-between group">
+                                <span>✨ Who made you?</span>
+                                <span class="text-[#d4af37] group-hover:translate-x-1 transition-transform">→</span>
+                            </button>
+                            <button onclick="sendQuickPrompt('Write a clean Python script for a binary search algorithm.')" class="text-left text-xs bg-black/50 hover:bg-[#d4af37]/10 text-gray-300 p-2 rounded-lg border border-[#d4af37]/20 transition-all flex items-center justify-between group">
+                                <span>🐍 Python Algorithm</span>
+                                <span class="text-[#d4af37] group-hover:translate-x-1 transition-transform">→</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnostics footer -->
+                <div class="pt-3 border-t border-[#d4af37]/20 flex-shrink-0 mt-2">
+                    <div class="flex justify-between text-[11px] text-gray-400 bg-black/40 p-2 rounded border border-[#d4af37]/20">
+                        <span>Engine Status</span>
+                        <span class="text-amber-400 font-mono">Online</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Chat Box Container -->
+            <main class="flex-1 luxury-panel rounded-2xl flex flex-col overflow-hidden relative font-sans">
+                
+                <!-- Messages Scroll Area -->
+                <div id="chatContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                    <!-- Dynamic chat messages injected here -->
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="typingIndicator" class="hidden px-6 py-2 flex items-center space-x-3 text-xs text-[#d4af37]">
+                    <div class="w-6 h-6 rounded-full bg-[#d4af37]/20 flex items-center justify-center">
+                        <span class="animate-spin text-xs">⚡</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <span class="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce"></span>
+                        <span class="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                    </div>
+                    <span class="text-gray-400 italic">Neural processing in progress...</span>
+                </div>
+
+                <!-- Input Bar -->
+                <div class="p-4 bg-black/40 border-t border-[#d4af37]/30">
+                    <form id="chatForm" onsubmit="handleFormSubmit(event)" class="flex items-center gap-3">
+                        <div class="relative flex-1">
+                            <input type="text" id="userInput" placeholder="Transmit query to I-Sphere (or use Voice)..." autocomplete="off" class="w-full bg-black/80 border gold-border rounded-xl px-4 py-3.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none transition-all pr-12">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-gray-500 hidden sm:block">
+                                [Enter]
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-gradient-to-r from-[#bf953f] via-[#fcf6ba] to-[#b38728] hover:opacity-90 text-black font-serif font-bold px-6 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center flex-shrink-0 cursor-pointer">
+                            <span>Transmit</span>
+                        </button>
+                    </form>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Script Engine -->
+    <script>
+        let chats = JSON.parse(localStorage.getItem('isphere_chats')) || [];
+        let currentChatId = localStorage.getItem('isphere_active_chat') || null;
+        let apiKeys = JSON.parse(localStorage.getItem('isphere_api_keys')) || [];
+        let activeApiKeyId = localStorage.getItem('isphere_active_apikey_id') || null;
+        let isSidebarOpen = true;
+        let recognition = null;
+        let isVoiceActive = false;
+
+        function startAiInterface() {
+            const landing = document.getElementById('landingView');
+            const chat = document.getElementById('chatView');
+
+            landing.style.opacity = '0';
+            setTimeout(() => {
+                landing.classList.add('hidden');
+                chat.classList.remove('hidden');
+                setTimeout(() => {
+                    chat.style.opacity = '1';
+                    initChatArchives();
+                    initApiKeys();
+                    initVoiceRecognition();
+                }, 50);
+            }, 500);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            isSidebarOpen = !isSidebarOpen;
+            if (isSidebarOpen) {
+                sidebar.classList.remove('hidden');
+                sidebar.style.opacity = '1';
+                sidebar.style.pointerEvents = 'auto';
+            } else {
+                sidebar.style.opacity = '0';
+                sidebar.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    if (!isSidebarOpen) sidebar.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- API Key Manager Functions ---
+        function initApiKeys() {
+            renderApiKeyDropdown();
+        }
+
+        function renderApiKeyDropdown() {
+            const select = document.getElementById('apiKeySelect');
+            if (!select) return;
+            select.innerHTML = '';
+
+            if (apiKeys.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "-- No Saved Keys --";
+                select.appendChild(opt);
+            } else {
+                apiKeys.forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k.id;
+                    const masked = k.key.length > 8 ? k.key.substring(0, 6) + '...' + k.key.slice(-4) : '****';
+                    opt.textContent = `${k.name} (${masked})`;
+                    if (k.id === activeApiKeyId) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+
+            const addOpt = document.createElement('option');
+            addOpt.value = "ADD_NEW";
+            addOpt.textContent = "➕ Add New API Key...";
+            select.appendChild(addOpt);
+
+            if (!activeApiKeyId && apiKeys.length > 0) {
+                activeApiKeyId = apiKeys[0].id;
+                select.value = activeApiKeyId;
+            }
+        }
+
+        function handleApiKeyChange(val) {
+            if (val === "ADD_NEW") {
+                addNewApiKeyPrompt();
+            } else {
+                activeApiKeyId = val;
+                localStorage.setItem('isphere_active_apikey_id', activeApiKeyId);
+            }
+        }
+
+        function addNewApiKeyPrompt() {
+            const name = prompt("Enter a label/name for this API Key (e.g., My Groq Key):");
+            if (!name || !name.trim()) {
+                renderApiKeyDropdown();
+                return;
+            }
+            const keyVal = prompt("Paste your Groq API Key:");
+            if (!keyVal || !keyVal.trim()) {
+                renderApiKeyDropdown();
+                return;
+            }
+
+            const newKey = {
+                id: 'key_' + Date.now(),
+                name: name.trim(),
+                key: keyVal.trim()
+            };
+
+            apiKeys.push(newKey);
+            activeApiKeyId = newKey.id;
+            localStorage.setItem('isphere_api_keys', JSON.stringify(apiKeys));
+            localStorage.setItem('isphere_active_apikey_id', activeApiKeyId);
+            renderApiKeyDropdown();
+        }
+
+        function deleteCurrentApiKey() {
+            if (!activeApiKeyId) {
+                alert("No API key currently selected to delete.");
+                return;
+            }
+            const targetKey = apiKeys.find(k => k.id === activeApiKeyId);
+            const targetName = targetKey ? targetKey.name : "this key";
+
+            if (confirm(`Are you sure you want to delete "${targetName}"?`)) {
+                apiKeys = apiKeys.filter(k => k.id !== activeApiKeyId);
+                activeApiKeyId = apiKeys.length > 0 ? apiKeys[0].id : null;
+                localStorage.setItem('isphere_api_keys', JSON.stringify(apiKeys));
+                localStorage.setItem('isphere_active_apikey_id', activeApiKeyId);
+                renderApiKeyDropdown();
+            }
+        }
+
+        function getActiveApiKey() {
+            const found = apiKeys.find(k => k.id === activeApiKeyId);
+            return found ? found.key : "";
+        }
+
+        // --- Voice Assistant ---
+        function initVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech Recognition is not supported by this browser. Please use Google Chrome.");
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isVoiceActive = true;
+                const dot = document.getElementById('voiceDot');
+                const text = document.getElementById('voiceText');
+                const btn = document.getElementById('voiceToggleBtn');
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                text.innerText = "Voice: Listening...";
+                text.style.color = "#fcf6ba";
+                btn.style.borderColor = "#10b981";
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                console.log("Voice Input Detected:", transcript);
+
+                if (transcript.includes('open sidebar') || transcript.includes('show sidebar')) {
+                    if (!isSidebarOpen) toggleSidebar();
+                } else if (transcript.includes('close sidebar') || transcript.includes('hide sidebar')) {
+                    if (isSidebarOpen) toggleSidebar();
+                } else {
+                    const rawTranscript = event.results[event.results.length - 1][0].transcript.trim();
+                    document.getElementById('userInput').value = rawTranscript;
+                    document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.warn("Speech recognition error:", event.error);
+                if (event.error === 'not-allowed') {
+                    alert("Microphone access was denied. Please allow microphone permissions in your browser settings.");
+                    isVoiceActive = false;
+                }
+            };
+
+            recognition.onend = () => {
+                if (isVoiceActive) {
+                    setTimeout(() => {
+                        if (isVoiceActive) {
+                            try { 
+                                recognition.start(); 
+                            } catch(e) {
+                                console.log("Restart prevented or already started:", e);
+                            }
+                        }
+                    }, 500);
+                } else {
+                    const dot = document.getElementById('voiceDot');
+                    const text = document.getElementById('voiceText');
+                    const btn = document.getElementById('voiceToggleBtn');
+                    dot.className = "w-2.5 h-2.5 rounded-full bg-gray-500";
+                    text.innerText = "Voice: Off";
+                    text.style.color = "";
+                    btn.style.borderColor = "";
+                }
+            };
+        }
+
+        function toggleVoiceAssistant() {
+            if (!recognition) {
+                alert("Voice recognition is not supported on your browser. Try using Google Chrome.");
+                return;
+            }
+
+            if (isVoiceActive) {
+                isVoiceActive = false;
+                recognition.stop();
+            } else {
+                isVoiceActive = true;
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        // --- Chat Sessions Management ---
+        function initChatArchives() {
+            if (chats.length === 0) {
+                createNewChatSession("Neural Session 1", false);
+            } else if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
+                currentChatId = chats[0].id;
+            }
+            renderChatList();
+            loadActiveChatMessages();
+        }
+
+        function createNewChatSession(title = "New Session", save = true) {
+            const newChat = {
+                id: 'chat_' + Date.now(),
+                title: title,
+                messages: [
+                    {
+                        sender: 'ai',
+                        text: "Neural link established. I am **I-Sphere AI** created by **Aayushyamaan Gupta**.\n\nSelect or add your Groq API key in the top right menu, type or speak your prompt, and press **Transmit**.",
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }
+                ]
+            };
+            chats.unshift(newChat);
+            currentChatId = newChat.id;
+            if (save) {
+                saveState();
+                renderChatList();
+                loadActiveChatMessages();
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('isphere_chats', JSON.stringify(chats));
+            localStorage.setItem('isphere_active_chat', currentChatId);
+        }
+
+        function renderChatList() {
+            const listEl = document.getElementById('chatHistoryList');
+            listEl.innerHTML = '';
+            
+            chats.forEach(chat => {
+                const isActive = chat.id === currentChatId;
+                const item = document.createElement('div');
+                item.className = `group flex items-center justify-between p-2 rounded-xl text-xs transition-all border ${isActive ? 'bg-[#bf953f]/20 border-[#d4af37]/60 text-[#fcf6ba]' : 'bg-black/30 border-[#d4af37]/10 text-gray-300 hover:bg-black/50 hover:border-[#d4af37]/30'}`;
+                
+                item.innerHTML = `
+                    <span onclick="switchChat('${chat.id}')" class="truncate flex-1 cursor-pointer font-serif pr-2" title="${escapeHtml(chat.title)}">${escapeHtml(chat.title)}</span>
+                    <div class="flex items-center space-x-1 opacity-70 group-hover:opacity-100 flex-shrink-0">
+                        <button onclick="renameChat('${chat.id}', event)" class="p-1 hover:text-[#fcf6ba] transition-colors cursor-pointer" title="Rename Session">✏️</button>
+                        <button onclick="deleteChat('${chat.id}', event)" class="p-1 hover:text-red-400 transition-colors cursor-pointer" title="Delete Session">🗑️</button>
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function switchChat(chatId) {
+            currentChatId = chatId;
+            saveState();
+            renderChatList();
+            loadActiveChatMessages();
+        }
+
+        function loadActiveChatMessages() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+            const activeChat = chats.find(c => c.id === currentChatId);
+            if (!activeChat) return;
+
+            activeChat.messages.forEach(msg => {
+                appendMessageNode(msg.text, msg.sender, msg.time);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renameChat(chatId, event) {
+            event.stopPropagation();
+            const chat = chats.find(c => c.id === chatId);
+            if (!chat) return;
+            const newTitle = prompt("Enter a custom name for this session:", chat.title);
+            if (newTitle && newTitle.trim() !== "") {
+                chat.title = newTitle.trim();
+                saveState();
+                renderChatList();
+            }
+        }
+
+        function deleteChat(chatId, event) {
+            event.stopPropagation();
+            if (chats.length <= 1) {
+                alert("You must keep at least one active chat session.");
+                return;
+            }
+            if (confirm("Are you sure you want to delete this session?")) {
+                chats = chats.filter(c => c.id !== chatId);
+                if (currentChatId === chatId) {
+                    currentChatId = chats[0].id;
+                }
+                saveState();
+                renderChatList();
+                loadActiveChatMessages();
+            }
+        }
+
+        function sendQuickPrompt(text) {
+            document.getElementById('userInput').value = text;
+            document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const inputField = document.getElementById('userInput');
+            const prompt = inputField.value.trim();
+            if (!prompt) return;
+
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            let activeChat = chats.find(c => c.id === currentChatId);
+            if (!activeChat) {
+                createNewChatSession("New Session", false);
+                activeChat = chats[0];
+            }
+
+            if (activeChat.title.startsWith("New Session") || activeChat.title.startsWith("Neural Session")) {
+                activeChat.title = prompt.length > 22 ? prompt.substring(0, 22) + '...' : prompt;
+                renderChatList();
+            }
+
+            activeChat.messages.push({ sender: 'user', text: prompt, time: timeStr });
+            saveState();
+            appendMessageNode(prompt, 'user', timeStr);
+            inputField.value = '';
+
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.classList.remove('hidden');
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const apiKey = getActiveApiKey();
+            const selectedModel = document.getElementById('modelSelect').value;
+            let responseText = "";
+
+            if (!apiKey) {
+                typingIndicator.classList.add('hidden');
+                appendMessageNode("⚠ Please select or add a valid Groq API key from the top right dropdown menu to initialize connection.", 'ai', timeStr);
+                return;
+            }
+
+            // Guaranteed direct interception for creator questions
+            const lowerPrompt = prompt.toLowerCase();
+            if (
+                lowerPrompt.includes('who made') || 
+                lowerPrompt.includes('who created') || 
+                lowerPrompt.includes('who built') || 
+                lowerPrompt.includes('creator') ||
+                lowerPrompt.includes('who developed')
+            ) {
+                responseText = "I was created and developed by **Aayushyamaan Gupta**. Make sure to subscribe to his YouTube channels: **AG's Sketchy Life**, **AG's Gaming Life**, and **AG's Trendy Life**!";
+            } else {
+                try {
+                    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: selectedModel,
+                            messages: [
+                                { role: 'system', content: "You are I-Sphere AI, an advanced, elegant, and intelligent AI assistant created by Aayushyamaan Gupta." },
+                                { role: 'user', content: prompt }
+                            ],
+                            temperature: 0.7
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (data.choices && data.choices[0] && data.choices[0].message) {
+                        responseText = data.choices[0].message.content;
+                    } else if (data.error) {
+                        throw new Error(data.error.message || "Groq API Error");
+                    } else {
+                        throw new Error("Unexpected response structure from Groq API");
+                    }
+                } catch (err) {
+                    console.warn("Groq Connection Error:", err);
+                    responseText = `⚠️ **Groq API Connection Error:** ${err.message}. Please verify your selected API key and model.`;
+                }
+            }
+
+            typingIndicator.classList.add('hidden');
+            
+            const aiTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            activeChat.messages.push({ sender: 'ai', text: responseText, time: aiTimeStr });
+            saveState();
+            appendMessageNode(responseText, 'ai', aiTimeStr);
+        }
+
+        function appendMessageNode(text, sender, timeStr) {
+            const chatContainer = document.getElementById('chatContainer');
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex items-start space-x-4";
+
+            if (sender === 'user') {
+                wrapper.innerHTML = `
+                    <div class="flex-1 space-y-2 text-right">
+                        <div class="flex items-center justify-end space-x-2">
+                            <span class="text-[10px] text-gray-500">${timeStr}</span>
+                            <span class="font-serif font-semibold text-xs text-[#fcf6ba]">YOU</span>
+                        </div>
+                        <div class="bg-[#bf953f]/15 border border-[#bf953f]/30 rounded-2xl p-4 text-sm text-gray-100 leading-relaxed shadow-lg max-w-2xl ml-auto text-left inline-block">
+                            <p>${escapeHtml(text)}</p>
+                        </div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-[#bf953f]/30 flex-shrink-0 flex items-center justify-center border border-[#bf953f]/40 mt-1">
+                        <span class="text-xs font-bold text-[#fcf6ba]">U</span>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#bf953f] to-[#aa771c] flex-shrink-0 flex items-center justify-center shadow-md mt-1">
+                        <span class="font-bold text-black text-xs">Ω</span>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-serif font-semibold text-xs text-[#d4af37]">I-SPHERE AI</span>
+                            <span class="text-[10px] text-gray-500">${timeStr}</span>
+                        </div>
+                        <div class="bg-black/60 border border-[#d4af37]/30 rounded-2xl p-4 text-sm text-gray-200 leading-relaxed shadow-lg max-w-2xl">
+                            <p>${formatAIResponse(text)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            chatContainer.appendChild(wrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function formatAIResponse(text) {
+            let safeText = escapeHtml(text);
+            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#fcf6ba]">$1</strong>');
+            safeText = safeText.replace(/`([^`]+)`/g, '<code class="bg-black px-1.5 py-0.5 rounded text-[#fcf6ba] font-mono text-xs border border-[#d4af37]/30">$1</code>');
+            return safeText.replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+</html>
